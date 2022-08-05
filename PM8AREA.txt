@@ -1,0 +1,18 @@
+create table areas(radius INT,area REAL);
+
+do $$
+    DECLARE 
+       rad INT;
+       a REAL;
+       BEGIN
+           rad:=3;
+           while rad<=7
+           loop
+             a:=3.14*rad*rad;
+             insert into areas values(rad,a);
+             rad:=rad+1;
+           loop end;
+       END;
+    $$
+    
+SELECT * FROM areas;

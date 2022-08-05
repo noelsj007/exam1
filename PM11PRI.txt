@@ -1,0 +1,18 @@
+CREATE OR REPLACE FUNCTION prime(n INT) returns VARCHAR(30) AS $$
+DECLARE 
+  i INT;
+  BEGIN
+    if n<2 then 
+       return n || ' is not a prime number';
+    end if;
+    for i in 2..n/2
+    loop
+       if mod(n,i)=0 then
+          return n || ' is not a prime number';
+       end if;
+    end loop;
+    return n || ' is a prime number';
+  END;
+ $$ language plpgsql;
+ 
+ SELECT prime(3);

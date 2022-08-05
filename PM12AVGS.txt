@@ -1,0 +1,18 @@
+CREATE TABLE emp_salary(emp_no INT,ename VARCHAR(20),dept VARCHAR(20),salary INT);
+
+INSERT INTO emp_salary VALUES (101,'Santhosh','Production',25000),(104,'Alia','Finance',18000),(107,'Alex','Production',20000),(111,'Nia','Sales',15000);
+
+CREATE OR REPLACE FUNCTION avg_salary(dept_name VARCHAR(20)) RETURNS numeric(10,2) AS $$
+
+DECLARE 
+    avg_sal numeric(10,2);
+    BEGIN 
+    SELECT avg(salary) INTO avg_sal FROM emp_salary GROUP BY dept HAVING dept=dept_name;
+    return avg_sal;
+END;
+$$ language plpgsql;
+
+SELECT avg_salary('Production');
+
+SELECT avg_salary('Finance');
+  

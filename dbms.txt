@@ -1,0 +1,194 @@
+/* dbms
+pg_ctl -D ./postgres start
+psql -d hello
+pg_ctl -D ./postgres stop
+*/
+
+// 1 
+create table customer(cust_no VARCHAR(5),cust_name VARCHAR(15),age INT,phone VARCHAR(10));
+
+insert into customer values ('C010','user1',30,'9080706050'),('C011','user2',32,'9080706040'),('C012','user3',28,'9080706030'),('C013','user4',27,'9080706020'),('C014','user5',23,'9080706010');
+
+select * from customer;
+
+alter table customer ADD COLUMN d_birth DATE;
+
+CREATE TABLE cust_phone AS SELECT cust_name,phone FROM customer;
+
+ALTER TABLE customer drop column age;
+
+alter table customer alter column cust_name type varchar(25);
+
+DELETE FROM customer;
+
+alter table customer rename to cust;
+
+DROP TABLE cust;
+
+//2
+CREATE TABLE sales_man(salesman_no INT PRIMARY KEY,s_name VARCHAR(20) NOT NULL,place VARCHAR(25),phone VARCHAR(10) UNIQUE);
+
+CREATE TABLE sales_order(order_no INT,    order_date DATE NOT NULL,del_type CHAR(1) CHECK(del_type in('P' ,'F')),order_status VARCHAR(10) CHECK(order_status IN ('Inprocess','Fullfilled','Backorder', 'Cancelled')),CONSTRAINT oderno PRIMARY KEY(order_no),  salesman_no INT,CONSTRAINT snofk FOREIGN KEY(salesman_no) REFERENCES sales_man(salesman_no));
+
+insert into sales_order values(100,'2022-07-10','P','Inprocess',10);
+insert into sales_order values(128,'2022-06-04','F','Fulfilled',28);
+
+ALTER TABLE sales_man DROP CONSTRAINT sales_man_pkey;
+
+ALTER TABLE sales_order DROP CONSTRAINT snofk;
+
+ALTER TABLE sales_order DROP constraint sales_order_order_status_check;
+
+ALTER TABLE sales_order DROP constraint sales_order_del_type_check;
+
+ALTER TABLE sales_man ADD primary key(salesman_no);
+
+ALTER TABLE sales_order ADD FOREIGN KEY (salesman_no) REFERENCES sales_man(salesman_no);
+
+ALTER TABLE sales_order ADD CHECK (del_type = 'F' OR del_type = 'P');
+
+ALTER TABLE sales_order ADD CHECK(order_status IN('Inprocess', 'Fullfilled', 'Cancelled', 'Backorder'));
+
+\d sales_order;
+
+// 3 hospital
+create table hospital(did VARCHAR(5),dname VARCHAR(20),department VARCHAR(20),qualification VARCHAR(20),experience INT);
+
+insert into hospital values('D001','Alex','General','MD',4),('D002','Nia','Dental','BDS',7),('D003','Kumar','Skin','MS',4),('D005','John','General','MD',2);
+
+select * from hospital;
+
+select * from hospital WHERE qualification='MD';
+
+select * from hospital WHERE qualification !='MD' AND experience>5;
+
+select * from hospital WHERE department='Skin';
+
+UPDATE hospital set experience=5 where did='D005';
+
+delete from hospital where did='D005';
+
+//4 bank
+create table bc(accno INT  primary key,cust_name VARCHAR(15),place VARCHAR(20));
+
+create table deposit(accno int, constraint fk foreign key(accno) references bc(accno),deposit_no INT,damount INT);
+
+create table loan(accno int,constraint fk foreign key(accno) refereneces bc(accno),loan_no INT,lamount INT);
+
+//b
+select cust_name,damount from bc,deposit where bc.accno=deposit.accno;
+select cust_name,damount from bc,deposit,loan where (bc.accno=deposit.accno and bc.accno not in(select accno from loan));
+//c
+select cust_name,lamount from bc,loan where bc.accno=loan.accno;
+//d
+select cust_name from bc,deposit,loan where bc.accno=deposit.accno AND bc.accno=loan.accno;
+//e
+select cust_name from bc where accno not in((select accno from loan) union (select accno from deposit));
+
+//5
+
+create table employee(empid INT,ename VARCHAR(20),salary INT,department VARCHAR(20),age INT);
+
+Insert into employee values(101, 'Adam', 20000, 'Purchase', 25), (102, 'Lisa', 15000, 'Sales',45), (103, 'Arun', 18000, 'Sales', 34), (104, 'Aysha', 25000, 'Purchase', 25), (105, 'Sheeja',30000, 'Finance', 36), (106, 'Sagar', 28000, 'Finance', 42);
+
+select count(*) from employee;
+
+select ename,department from employee where age in(select max(age) from employee group by department);
+
+select department,avg(age) from employee group by department;
+
+select department,avg(salary) from employee group by department;
+
+select min(salary) from employee;
+
+select count(*) from employee where department='Purchase';
+
+select max(salary) from employee where department='Sales';
+
+select max(salary) - min(salary) as sal_difference from employee;
+
+//6 
+create table product(product_code int primary key, product_name varchar(20),category 
+
+varchar(20), quantity int,price numeric(10,2));
+
+insert into product values('P002','nirma','washing powder',500,120),('P003','lux','bath soap',100,30),('P004','pears','bath soap',100,50),('P005','colgate','paste',500,50),('P006','unibic','cookies',500,150),('P007','classmate','book',600,150),('P008','camalin','book',50,150);
+
+select * from product order by product_name desc;
+
+select product_code,product_name from product where price between 20 and 50;
+
+select product_name,price from product where category in ('bath soap','paste','washing 
+
+powder');
+
+
+select * from product where quantity<100 or quantity>500;
+
+select product_name from product where product_name like 's%';
+
+select product_name from product where category != 'paste';
+
+select product_name from product where product_name like '_u%' and category='washing powder';
+
+//7
+
+create table employee(empname varchar(10) primary key,city varchar(10));
+
+create table company(company_name varchar(10) primary key ,city varchar(10));
+
+create table works(empname varchar(10) primary key references employee(empname),cname varchar(10) references company(company_name),salary int);
+
+create table manages(empname varchar(10) references employee(empname),manager_name 
+varchar(10) references employee(empname),primary key(empname,manager_name));
+
+insert into employee values('swathi','kzkd');
+
+insert into employee values('vishnu','tvm');
+
+insert into employee values('shreya','usa');
+
+insert into employee values('adam','dubai');
+
+insert into employee values('sajid','malappuram');
+
+insert into company values('infosys','tvm');
+insert into company values('chandrika','trissur');
+insert into company values('wipro','kochi');
+insert into company values('tata','mumbai');
+insert into company values('bajaj','delhi');
+insert into works values('swathi','infosys',10000);
+insert into works values('vishnu','infosys',15000);
+insert into works values('shreya','wipro',71502);
+insert into works values('adam','infosys',8000);
+insert into works values('sajid','wipro',18000);
+insert into manages values('swathi','adam');
+insert into manages values('vishnu','adam');
+insert into manages values('sajid','shreya');
+ 
+select empname from works where cname='infosys';
+b)
+
+select employee.empname,employee.city from employee,works where employee.empname
+
+=works.empname and works.cname='wipro';
+
+c)
+
+select employee.empname,city from employee,works where employee.empname= 
+
+works.empname and cname='infosys' and salary>10000;
+
+d)
+
+select employee.empname from employee,works,company where employee.empname =
+
+works.empname and employee.city = company.city and works.cname = company.
+
+company_name;
+
+e)
+
+select empname from works where cname!='wipro';
+
+select cname from works group by cname order by count(*) desc limit 1;

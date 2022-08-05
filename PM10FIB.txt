@@ -1,0 +1,19 @@
+CREATE OR REPLACE PROCEDURE fibonacci(n int)
+AS $$
+ DECLARE 
+   a int:=1;
+   b int:=0;
+   c int:=0;
+   BEGIN
+     raise notice 'Fibonacci series upto %',n;
+     loop
+     exit when n<c;
+     raise notice '%',c; 
+      c:=a+b;
+      a:=b;
+      b:=c;
+     end loop;
+   end;
+  $$ language plpgsql;
+  
+  CALL fibonacci(8);

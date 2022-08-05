@@ -1,0 +1,32 @@
+CREATE TABLE ebill(cust_no INT,cust_name VARCHAR(20),units_consumed INT,amt REAL);
+
+INSERT INTO ebill values(100,'Alex',408),(103,'Santhosh',200),(108,'Ali',323);
+
+DO $$
+   DECLARE
+      rate INT;
+      rec record;
+      curs1 cursor for select * from ebill;
+      BEGIN
+        open curs1;
+        loop 
+        fetch curs1 into rec;
+        exit when not found;
+        if rec.units_consumed<=100 then
+          rate:=3;
+        elsif rec.units_consumed<=200 then
+          rate:=4;
+        elsif rec.units_consumed<=300 then
+          rate:=5;
+        elsif rec.units_consumed<=400 then
+          rate:=6;
+        else
+          rate:=7;
+        end if;
+        UPDATE ebill set amt=rate*units_consumed WHERE cust_no=rec.cust_no;
+        end loop;
+        close curs1;
+      END;
+    $$;
+    
+ SELECT * FROM ebill;
